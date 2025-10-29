@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-R-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo: AI trong dự đoán độ sụt bê tông</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Đã loại bỏ Chart.js vì không còn biểu đồ tương tác -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS cho tô sáng cú pháp (Prism.js) - Giữ lại -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; 
+        }
+        /* Đã loại bỏ các class CSS cho chart-container, histogram-container, metric-btn, hist-btn */
+        .placeholder-img {
+            border: 2px dashed #d1d5db;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            color: #4b5563;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .placeholder-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .placeholder-img span {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        .placeholder-img p {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+        h2 {
+            font-size: 1.875rem; /* 30px */
+            font-weight: 700;
+            color: #2563eb; /* text-blue-600 */
+            border-bottom: 2px solid #93c5fd; /* blue-300 */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.5rem; /* 24px */
+            font-weight: 600;
+            color: #111827; /* gray-900 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        h4 {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+            color: #1f2937; /* gray-800 */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        p, li {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #374151; /* gray-700 */
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 2rem;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 1rem;
+            border-collapse: collapse;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #e5e7eb; /* gray-200 */
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f9fafb; /* gray-50 */
+            font-weight: 600;
+        }
+        /* Cập nhật style cho <pre> để khớp với Prism.js theme */
+        pre[class*="language-"] {
+            background-color: #272822; /* Màu nền từ theme Okaidia */
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 lg:px-6 py-3 flex justify-between items-center max-w-6xl">
+            <div class="text-lg font-bold text-blue-600">
+                Báo cáo chuyên đề AI
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#tom-tat" class="text-blue-600 hover:text-blue-700 font-medium">Tóm tắt</a>
+                <a href="#gioi-thieu" class="text-blue-600 hover:text-blue-700 font-medium">Giới thiệu</a>
+                <a href="#phuong-phap" class="text-blue-600 hover:text-blue-700 font-medium">Phương pháp</a>
+                <a href="#ket-qua" class="text-blue-600 hover:text-blue-700 font-medium">Kết quả</a>
+                <a href="#ket-luan" class="text-blue-600 hover:text-blue-700 font-medium">Kết luận</a>
+                <a href="#tai-lieu" class="text-blue-600 hover:text-blue-700 font-medium">Tài liệu</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 right-0 z-40">
+            <a href="#tom-tat" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Tóm tắt</a>
+            <a href="#gioi-thieu" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Giới thiệu</a>
+            <a href="#phuong-phap" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Phương pháp</a>
+            <a href="#ket-qua" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Kết quả</a>
+            <a href="#ket-luan" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Kết luận</a>
+            <a href="#tai-lieu" class="block px-5 py-3 text-blue-600 hover:bg-blue-50 font-medium">Tài liệu</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <section id="tom-tat" class="pt-8">
+            <!-- Thêm thông tin trường, khoa -->
+            <div class="text-center mb-4 text-gray-800">
+                <p class="text-lg font-semibold uppercase">TRƯỜNG ĐẠI HỌC BÁCH KHOA</p>
+                <p class="text-lg font-semibold uppercase">KHOA QUẢN LÝ DỰ ÁN</p>
+            </div>
+            <!-- Kết thúc phần trường/khoa -->
+
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-4 text-center">
+                ỨNG DỤNG AI TRONG VIỆC PHÂN TÍCH VÀ DỰ ĐOÁN ĐỘ SỤT CỦA BÊ TÔNG
+            </h1>
+            
+            <!-- Thêm thông tin GVHD và Học viên -->
+            <div class="text-center mb-8 text-gray-700">
+                <p class="text-lg mt-4">Giáo viên hướng dẫn: <strong>TS. NGÔ NGỌC TRI</strong></p>
+                <p class="text-lg mt-2">Học viên: <strong>Đỗ Văn Thạo - Lớp K48QXD</strong></p>
+            </div>
+            <!-- Kết thúc phần GVHD/Học viên -->
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-2xl">Tóm tắt</h2>
+                <p>
+                    Trong ngành xây dựng, độ sụt bê tông là một chỉ tiêu kỹ thuật quan trọng, ảnh hưởng trực tiếp đến chất lượng thi công và độ an toàn của công trình. Độ sụt phản ánh tính công tác của hỗn hợp bê tông, quyết định khả năng dễ đổ, đầm chặt và lấp đầy khuôn. Việc kiểm soát độ sụt một cách nhanh chóng và chính xác là một nhu cầu cấp thiết. Nghiên cứu này trình bày việc ứng dụng các thuật toán học máy và phương pháp tổ hợp mô hình trên nền tảng phần mềm Weka [2] để xây dựng mô hình dự đoán độ sụt bê tông một cách hiệu quả. Bộ dữ liệu "Concrete Slump Test" từ Kho dữ liệu UCI [1], bao gồm 103 mẫu với 7 thuộc tính đầu vào là thành phần cấp phối, được sử dụng để huấn luyện và đánh giá các mô hình. Kết quả nghiên cứu chỉ ra rằng mô hình tổ hợp Bagging [3] với thuật toán cơ sở là M5P cho hiệu suất dự đoán tốt nhất, với hệ số tương quan R = 0.6488, sai số tuyệt đối trung bình MAE = 5.1437 cm và căn bậc hai sai số bình phương trung bình RMSE = 6.6343 cm, vượt trội so với các mô hình đơn lẻ và các phương pháp tổ hợp khác như Voting và Stacking. Kết quả này khẳng định tiềm năng ứng dụng của AI và học máy trong việc hỗ trợ dự đoán và tối ưu hóa các tính chất của bê tông trong xây dựng.
+                </p>
+                <h3 class="text-xl">Từ khóa</h3>
+                <p class="text-gray-600 italic">
+                    học máy; dự đoán độ sụt; bê tông; Weka; Python; Bagging; M5P.
+                </p>
+            </div>
+        </section>
+
+        <section id="gioi-thieu" class="mt-12 pt-8">
+            <h2>1. Giới thiệu</h2>
+            <p>
+                Bê tông là vật liệu xây dựng phổ biến nhất trên thế giới, và chất lượng của nó quyết định phần lớn đến độ bền vững và an toàn của các công trình. Trong số các chỉ tiêu đánh giá chất lượng bê tông tươi, độ sụt đóng một vai trò then chốt. Độ sụt là thước đo tính công tác, đại diện cho khả năng chảy và lấp đầy khuôn ván dưới tác dụng của trọng lực hoặc đầm rung. Một giá trị độ sụt phù hợp đảm bảo cho bê tông dễ dàng thi công, đầm chặt, bao bọc cốt thép tốt, từ đó tạo ra khối bê tông đồng nhất và đạt cường độ thiết kế. Ngược lại, độ sụt quá cao có thể dẫn đến hiện tượng phân tầng, tách nước, làm giảm cường độ; trong khi độ sụt quá thấp gây khó khăn cho thi công, dễ hình thành các lỗ rỗng, ảnh hưởng đến độ đặc chắc của bê tông.
+            </p>
+            <p>
+                Phương pháp kiểm tra độ sụt truyền thống tuy đơn giản nhưng tiêu tốn thời gian, vật tư và phụ thuộc vào kỹ năng của người thí nghiệm, khó đáp ứng nhu cầu kiểm soát nhanh trong sản xuất và thi công hàng loạt. Do đó, việc phát triển một mô hình dự đoán độ sụt chính xác và nhanh chóng dựa trên các thành phần cấp phối là một hướng nghiên cứu có ý nghĩa thực tiễn cao.
+            </p>
+            <p>
+                Với sự phát triển mạnh mẽ của trí tuệ nhân tạo và khoa học dữ liệu, các kỹ thuật học máy đã chứng minh được hiệu quả trong việc giải quyết các bài toán phức tạp, phi tuyến trong kỹ thuật xây dựng [3, 4]. Đặc biệt, các phương pháp tổ hợp mô hình như Bagging [3], thường cho độ chính xác và độ ổn định cao hơn so với các mô hình đơn lẻ.
+            </p>
+            <p>
+                Trên cơ sở đó, nghiên cứu này tập trung vào việc ứng dụng các thuật toán học máy trên phần mềm Weka [2] để xây dựng mô hình dự đoán độ sụt của bê tông. Các mô hình đơn và mô hình tổ hợp sẽ được huấn luyện, đánh giá và so sánh để tìm ra mô hình tối ưu nhất cho bài toán.
+            </p>
+        </section>
+
+        <section id="phuong-phap" class="mt-12 pt-8">
+            <h2>2. Tập dữ liệu và Phương pháp nghiên cứu</h2>
+            
+            <h3>2.1. Tập dữ liệu</h3>
+            <p>
+                Tập dữ liệu được sử dụng trong nghiên cứu này là bộ dữ liệu "Concrete Slump Test" được công bố công khai bởi Kho dữ liệu UCI Machine Learning Repository [1]. Đây là nguồn dữ liệu uy tín, thường được sử dụng trong các nghiên cứu về dự đoán đặc tính bê tông.
+            </p>
+            <p>
+                Bộ dữ liệu gốc bao gồm 103 mẫu thử nghiệm. Mỗi mẫu được mô tả bởi 7 thuộc tính đầu vào và 3 thuộc tính đầu ra. Trong nghiên cứu này, biến mục tiêu được lựa chọn là "Độ sụt". Các thuộc tính đầu vào bao gồm: Xi măng, Xỉ, Tro bay, Nước, Phụ gia siêu dẻo, Cốt liệu thô, Cốt liệu mịn.
+            </p>
+
+            <h3>2.2. Chuẩn bị và Phân tích Dữ liệu Sơ bộ (Sử dụng Python)</h3>
+            
+            <h4>2.2.1. Công cụ và Thư viện Lập trình</h4>
+            <p>
+                Để thực hiện quá trình chuẩn bị, phân tích và trực quan hóa dữ liệu một cách hiệu quả, nghiên cứu này đã lựa chọn sử dụng ngôn ngữ lập trình Python (phiên bản 3.x) kết hợp với môi trường Google Colaboratory (Colab). Các thư viện chính được sử dụng bao gồm:
+            </p>
+            <ul>
+                <li><strong>Pandas:</strong> để thao tác và xử lý dữ liệu dạng bảng</li>
+                <li><strong>NumPy:</strong> để thực hiện các phép toán số học</li>
+                <li><strong>Matplotlib và Seaborn:</strong> để trực quan hóa dữ liệu</li>
+                <li><strong>liac-arff:</strong> để xuất dữ liệu sang định dạng ARFF tương thích với Weka</li>
+            </ul>
+
+            <h4>2.2.2. Tải và Nhập Dữ liệu</h4>
+            <p>Dữ liệu thô được tải trực tiếp từ URL nguồn bằng hàm `pd.read_csv` của Pandas:</p>
+            <!-- Thêm class="language-python" để Prism.js tô màu -->
+            <pre><code class="language-python">
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/slump/slump_test.data"
+initial_columns = [
+    "No", "Cement", "Slag", "Fly_Ash", "Water",
+    "SP", "Coarse_Aggr", "Fine_Aggr",
+    "SLUMP", "FLOW", "Compressive_Strength"
+]
+df = pd.read_csv(url, names=initial_columns, skiprows=1)
+            </code></pre>
+
+            <h4>2.2.3. Làm sạch và Tiền xử lý Dữ liệu</h4>
+            <p>Với mục tiêu chính là xây dựng mô hình dự đoán độ sụt (SLUMP), các thuộc tính không liên quan đã được loại bỏ:</p>
+            <pre><code class="language-python">
+columns_to_drop = ['No', 'FLOW', 'Compressive_Strength']
+df_cleaned = df.drop(columns=columns_to_drop)
+            </code></pre>
+
+            <h4>2.2.4. Trực quan hóa và Phân tích Dữ liệu</h4>
+            <p><strong>Biểu đồ Hộp (Box Plot)</strong></p>
+            <p>Các biểu đồ hộp dưới đây (Hình 1) hiển thị phân bố của từng biến số qua các tứ phân vị và phát hiện các điểm ngoại lai. Phân tích cho thấy sự lệch phải của Slag, Fly ash, SP và sự phân tán rộng hơn của các thuộc tính khác.</p>
+            <!-- Cập nhật đường dẫn ảnh -->
+            <div class="placeholder-img my-4 p-0 bg-white">
+                <img src="images/Box Plot.png" alt="Biểu đồ hộp của 8 thuộc tính dữ liệu" class="rounded-md object-contain w-full h-auto">
+                <span>Hình 1: Biểu đồ hộp các thuộc tính dữ liệu</span>
+                <p>(Nguồn: <code>images/Box Plot.png</code>)</p>
+            </div>
+            
+            <p class="font-semibold text-lg">Phân tích nhanh từ Box Plot:</p>
+            <ul>
+                <li><strong>SLAG - XỈ:</strong> Phân bố: Có xu hướng lệch (Skewed distribution). Đặc điểm: Khoảng giá trị rộng hơn so với xi măng. Ý nghĩa: Tính không đồng nhất cao trong các mẫu.</li>
+                <li><strong>FLY ASH - TRO BAY:</strong> Phân bố: Tương đối cân đối. Phạm vi: Giá trị trải đều từ thấp đến cao. Ứng dụng: Linh hoạt trong việc sử dụng.</li>
+                <li><strong>WATER - NƯỚC:</strong> Phân bố: Tập trung tốt, ít biến thiên. Độ ổn định: Cao, cho thấy kiểm soát tốt lượng nước. Tầm quan trọng: Phù hợp với vai trò then chốt cho độ sụt.</li>
+                <li><strong>COARSE AGGR. - CỐT LIỆU THÔ:</strong> Phân bố: Rộng, có thể có outlier. Biến thiên: Lớn, ảnh hưởng đến tính đồng nhất. Khuyến nghị: Cần kiểm soát chặt chẽ hơn.</li>
+            </ul>
+
+            <p class="font-semibold text-lg mt-4">Bảng xếp hạng độ ổn định vật liệu:</p>
+            <table class="my-4">
+                <thead>
+                    <tr>
+                        <th>Hạng</th>
+                        <th>Vật liệu</th>
+                        <th>Độ ổn định</th>
+                        <th>Phân bố</th>
+                        <th>Outlier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>💧 Water - Nước</td><td>⭐⭐⭐⭐⭐</td><td>Tập trung cao</td><td>Hiếm</td></tr>
+                    <tr><td>2</td><td>🧱 Cement - Xi măng</td><td>⭐⭐⭐⭐</td><td>Tập trung tốt</td><td>Ít</td></tr>
+                    <tr><td>3</td><td>🏖️ Fine Aggr. - Cốt liệu mịn</td><td>⭐⭐⭐</td><td>Cân đối</td><td>Trung bình</td></tr>
+                    <tr><td>4</td><td>🌫️ Fly ash - Tro bay</td><td>⭐⭐⭐</td><td>Cân đối</td><td>Một số</td></tr>
+                    <tr><td>5</td><td>🧴 SP - Phụ gia siêu dẻo</td><td>⭐⭐</td><td>Lệch phải</td><td>Có thể có</td></tr>
+                    <tr><td>6</td><td>🪨 Coarse Aggr. - Cốt liệu thô</td><td>⭐⭐</td><td>Rộng</td><td>Nhiều</td></tr>
+                    <tr><td>7</td><td>🏭 Slag - Xỉ</td><td>⭐</td><td>Lệch rõ rệt</td><td>Nhiều</td></tr>
+                </tbody>
+            </table>
+            <p><strong>Tác động đến mô hình dự báo:</strong> Dữ liệu ổn định (Water, Cement) giúp dự báo tin cậy. Dữ liệu biến thiên (Slag, Coarse Aggr.) cần xử lý để cải thiện độ chính xác. Box plot cho thấy chất lượng dữ liệu khá tốt cho việc xây dựng mô hình dự báo độ sụt!</p>
+
+            <p class="mt-6"><strong>Biểu đồ Tần suất (Histogram)</strong></p>
+            <p>Phân tích biểu đồ tần suất (đã được thực hiện trong quá trình chuẩn bị dữ liệu) cho phép quan sát chi tiết hình dạng phân bố. Đặc biệt, biến "SLUMP" cho thấy rõ <strong>tính chất hai đỉnh (bimodal)</strong>, cho thấy có thể tồn tại hai chế độ sụt khác nhau trong dữ liệu.</p>
+            <!-- Đã loại bỏ biểu đồ Histogram tương tác -->
+            
+            <p class="font-semibold text-lg mt-6">Phân tích nhanh từ Biểu đồ Tần suất:</p>
+            <ul>
+                <li><strong>Cement (Xi măng):</strong> Đường mật độ có hai đỉnh rõ rệt, cho thấy dữ liệu có phân bố hai cụm (bimodal).</li>
+                <li><strong>Slag (Xỉ):</strong> Cũng có hai đỉnh tương tự như Cement. Cho thấy một số mẫu có dùng xỉ, một số thì không.</li>
+                <li><strong>Fly ash (Tro bay):</strong> Phân bố đa đỉnh (multi-modal), thể hiện sự đa dạng trong phối liệu.</li>
+                <li><strong>Water (Nước):</strong> Phân bố gần như đơn đỉnh (unimodal). Hầu hết các mẫu có lượng nước trung bình ổn định.</li>
+                <li><strong>SP (Phụ gia siêu dẻo):</strong> Phân bố lệch phải mạnh. Đa số mẫu chỉ sử dụng ít phụ gia.</li>
+                <li><strong>Coarse Aggregate (Cốt liệu lớn):</strong> Phân bố xấp xỉ chuẩn, có một đỉnh chính.</li>
+                <li><strong>Fine Aggregate (Cốt liệu nhỏ):</strong> Phân bố gần chuẩn, hơi lệch trái.</li>
+                <li><strong>SLUMP (Độ sụt, cm):</strong> Phân bố hai đỉnh rõ ràng (~10 cm và ~25–30 cm). Cho thấy tồn tại hai nhóm hỗn hợp (khô và dẻo).</li>
+            </ul>
+
+            <p class="mt-6"><strong>Ma trận Tương quan (Correlation Matrix Heatmap)</strong></p>
+            <p>Ma trận tương quan Pearson được trực quan hóa dưới dạng bản đồ nhiệt (Hình 2). Phân tích chỉ ra rằng <strong>Water (0.47)</strong> và <strong>SP (-0.21)</strong> có tương quan (dương và âm) rõ rệt với SLUMP.</p>
+            <!-- Cập nhật đường dẫn ảnh -->
+            <div class="placeholder-img my-4 p-0 bg-white">
+                <img src="images/Correlation Matrix of Cleaned Data.png" alt="Ma trận tương quan của dữ liệu" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto">
+                <span>Hình 2: Ma trận tương quan các thuộc tính</span>
+                <p>(Nguồn: <code>images/Correlation Matrix of Cleaned Data.png</code>)</p>
+            </div>
+            
+            <table class="my-4">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Vật liệu</th>
+                        <th>Hệ số tương quan (với SLUMP)</th>
+                        <th>Mức độ ảnh hưởng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Water - Nước</td><td>+0.47</td><td>🥇 Ảnh hưởng mạnh nhất</td></tr>
+                    <tr><td>2</td><td>Slag - Xỉ</td><td>-0.28</td><td>🥈 Ảnh hưởng tiêu cực mạnh</td></tr>
+                    <tr><td>3</td><td>SP - Phụ gia siêu dẻo</td><td>-0.21</td><td>🥉 Ảnh hưởng tiêu cực</td></tr>
+                    <tr><td>4</td><td>Fine Aggr. - Cốt liệu mịn</td><td>+0.20</td><td>Ảnh hưởng tích cực</td></tr>
+                    <tr><td>5</td><td>Coarse Aggr. - Cốt liệu thô</td><td>-0.19</td><td>Ảnh hưởng tiêu cực</td></tr>
+                    <tr><td>6</td><td>Fly ash - Tro bay</td><td>-0.12</td><td>Ảnh hưởng nhẹ</td></tr>
+                    <tr><td>7</td><td>Cement - Xi măng</td><td>+0.15</td><td>Ảnh hưởng rất nhẹ</td></tr>
+                </tbody>
+            </table>
+
+            <h4>2.2.5. Xuất Dữ liệu sang Định dạng ARFF</h4>
+            <p>Dữ liệu sau khi làm sạch được xuất sang định dạng ARFF để tương thích với phần mềm Weka [2]:</p>
+            <pre><code class="language-python">
+arff_file_name = "cleaned_concrete_slump.arff"
+final_columns = df_cleaned.columns.tolist()
+data_arff = {
+    'description': u'Concrete Slump Test Dataset (UCI) - Cleaned for SLUMP Prediction',
+    'relation': 'concrete_slump_slump_prediction',
+    'attributes': [(col, 'REAL') for col in final_columns],
+    'data': df_cleaned.values.tolist()
+}
+with open(arff_file_name, "w", encoding='utf8') as f:
+    arff.dump(data_arff, f)
+            </code></pre>
+
+            <h3>2.3. Các thuật toán và Phương pháp đánh giá</h3>
+            <h4>2.3.1. Các thuật toán học máy đơn</h4>
+            <ul>
+                <li><strong>Hồi quy Tuyến tính:</strong> Mô hình cơ bản, giả định mối quan hệ tuyến tính.</li>
+                <li><strong>Máy Vectơ Hỗ trợ cho Hồi quy (SMOreg):</strong> Sử dụng kỹ thuật kernel để xử lý các mối quan hệ phi tuyến.</li>
+                <li><strong>Cây Hồi quy M5P:</strong> Xây dựng mô hình cây quyết định kết hợp với các mô hình hồi quy tuyến tính tại các nút lá.</li>
+            </ul>
+            <!-- Cập nhật đường dẫn ảnh -->
+            <div class="placeholder-img my-4 p-0 bg-white">
+                <img src="images/random-forest.png" alt="Kiến trúc mô hình Random Forest / Bagging" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto" style="background-color: #3A5F3A;">
+                <span>Hình 3: Minh họa kiến trúc mô hình Bagging (Random Forest) [3]</span>
+                <p>(Nguồn: <code>images/random-forest.png</code>)</p>
+            </div>
+
+            <h4>2.3.2. Các phương pháp học máy tổ hợp</h4>
+            <ul>
+                <li><strong>Bagging:</strong> Tạo ra nhiều tập dữ liệu con bằng phương pháp bootstrap, huấn luyện nhiều mô hình M5P và tổng hợp kết quả bằng cách lấy trung bình [3].</li>
+                <li><strong>Voting:</strong> Kết hợp dự đoán từ ba mô hình đơn LR, SMOreg và M5P bằng cách lấy trung bình.</li>
+                <li><strong>Stacking:</strong> Sử dụng kết quả dự đoán của ba mô hình đơn làm đầu vào cho một mô hình tổng hợp ở tầng thứ hai (SMOreg).</li>
+            </ul>
+
+            <h4>2.3.3. Phương pháp đánh giá</h4>
+            <p>Phương pháp <strong>Xác nhận chéo 10 lần (10-fold cross-validation)</strong> được sử dụng để đánh giá hiệu suất mô hình một cách khách quan, đặc biệt phù hợp với bộ dữ liệu có kích thước nhỏ [4].</p>
+            <!-- Cập nhật đường dẫn ảnh -->
+            <div class="placeholder-img my-4 p-4 bg-white">
+                <img src="images/Flow-diagram-of-K-fold-cross-validation.png" alt="Sơ đồ quy trình 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto mb-4">
+                <span>Hình 4.1: Sơ đồ quy trình Kiểm tra chéo 10-lần (10-fold CV) [4]</span>
+                <p class="mb-4">(Nguồn: <code>images/Flow-diagram-of-K-fold-cross-validation.png</code>)</p>
+
+                <img src="images/cv-anim-.gif" alt="Minh họa động 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-lg mx-auto mt-4">
+                <span>Hình 4.2: Minh họa động quá trình chia tập Test/Train</span>
+                <p>(Nguồn: <code>images/cv-anim-.gif</code>)</p>
+            </div>
+            
+            <table class="my-4">
+                <thead><tr><th>Thành phần trong hình</th><th>Ý nghĩa</th></tr></thead>
+                <tbody>
+                    <tr><td>Subsets 1-10</td><td>10 phần dữ liệu được chia đều</td></tr>
+                    <tr><td>Fold 1-10</td><td>Các lần huấn luyện – kiểm tra (mỗi Fold 1 lần làm Test)</td></tr>
+                    <tr><td>Model</td><td>Mô hình học máy được huấn luyện</td></tr>
+                    <tr><td>Error Prediction</td><td>Sai số dự đoán khi test mô hình</td></tr>
+                    <tr><td>Predicting coefficients...</td><td>Cập nhật hoặc chọn hệ số tối ưu dựa trên sai số</td></tr>
+                    <tr><td>Green box (final)</td><td>Kết quả cuối cùng – mô hình tối ưu nhất</td></tr>
+                </tbody>
+            </table>
+            
+            <p>Ba chỉ số đánh giá chính được sử dụng là:</p>
+            <ul>
+                <li><strong>Hệ số tương quan (R):</strong> Càng gần 1 càng tốt.</li>
+                <li><strong>Sai số Tuyệt đối Trung bình (MAE):</strong> Càng nhỏ càng tốt.</li>
+                <li><strong>Căn bậc hai Sai số Bình phương Trung bình (RMSE):</strong> Càng nhỏ càng tốt.</li>
+            </ul>
+        </section>
+
+        <section id="ket-qua" class="mt-12 pt-8">
+            <h2>3. Kết quả và Thảo luận</h2>
+            <p>
+                Kết quả hiệu suất của các mô hình sau khi chạy trên phần mềm Weka được tổng hợp trong Bảng 1 và Bảng 2.
+            </p>
+
+            <h3>Bảng 1. Hiệu suất của các mô hình học máy đơn</h3>
+            <table class="my-4">
+                <thead>
+                    <tr>
+                        <th>Mô hình</th>
+                        <th>MAE (cm)</th>
+                        <th>RMSE (cm)</th>
+                        <th>R</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Linear Regression</td><td>6.7612</td><td>7.8765</td><td>0.4503</td></tr>
+                    <tr><td>SMOreg</td><td>5.7801</td><td>7.9101</td><td>0.4997</td></tr>
+                    <tr><td>M5P</td><td>5.5123</td><td>7.1930</td><td>0.5680</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Bảng 2. Hiệu suất của các mô hình học máy tổ hợp</h3>
+            <table class="my-4">
+                <thead>
+                    <tr>
+                        <th>Phương pháp Tổ hợp</th>
+                        <th>Mô hình Cơ sở</th>
+                        <th>MAE (cm)</th>
+                        <th>RMSE (cm)</th>
+                        <th>R</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Bagging</td><td>M5P</td><td>5.1437</td><td>6.6343</td><td>0.6488</td></tr>
+                    <tr><td>Voting</td><td>LR + SMOreg + M5P</td><td>5.8911</td><td>7.3732</td><td>0.5418</td></tr>
+                    <tr><td>Stacking</td><td>LR + SMOreg + M5P</td><td>5.4197</td><td>7.5554</td><td>0.5379</td></tr>
+                </tbody>
+            </table>
+            
+            <!-- Đã loại bỏ biểu đồ "So sánh trực quan hiệu suất" -->
+
+            <h3 class="mt-8">Bảng đánh giá giá trị MAE</h3>
+            <table class="my-4">
+                <thead>
+                    <tr>
+                        <th>Mô hình</th>
+                        <th>MAE (cm)</th>
+                        <th>Đánh giá</th>
+                        <th>Mức độ Ưu tiên</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Bagging (M5P)</td><td>5.14</td><td>TỐT NHẤT</td><td>⭐⭐⭐⭐⭐</td></tr>
+                    <tr><td>M5P</td><td>5.51</td><td>Tốt</td><td>⭐⭐⭐⭐</td></tr>
+                    <tr><td>Stacking</td><td>5.42</td><td>Khá tốt</td><td>⭐⭐⭐</td></tr>
+                    <tr><td>SMOreg</td><td>5.78</td><td>Trung bình</td><td>⭐⭐⭐</td></tr>
+                    <tr><td>Voting</td><td>5.89</td><td>Trung bình</td><td>⭐⭐⭐</td></tr>
+                    <tr><td>Linear Regression</td><td>6.76</td><td>KÉM NHẤT</td><td>⭐⭐</td></tr>
+                </tbody>
+            </table>
+            
+            <h3 class="mt-8">Thảo luận kết quả</h3>
+            <p>
+                Phân tích kết quả từ các bảng trên cho phép rút ra một số nhận xét quan trọng:
+            </p>
+            <ul>
+                <li>Trong số các mô hình đơn, <strong>M5P</strong> thể hiện hiệu suất vượt trội với R cao nhất và các sai số MAE, RMSE thấp nhất. Điều này khẳng định khả năng của M5P trong việc nắm bắt các mối quan hệ phi tuyến phức tạp giữa thành phần cấp phối và độ sụt bê tông.</li>
+                <li>Mô hình <strong>Linear Regression</strong> cho kết quả thấp nhất, chứng tỏ mối quan hệ giữa đầu vào và đầu ra của bài toán là rất phi tuyến, không thể được mô tả tốt bằng một mô hình tuyến tính đơn giản.</li>
+                <li>Ở nhóm mô hình tổ hợp, <strong>Bagging [3]</strong> đã chứng minh được hiệu quả rõ rệt khi cho kết quả tốt nhất trong tất cả các chỉ số đánh giá. Việc kết hợp nhiều cây M5P thông qua kỹ thuật bootstrap đã giúp giảm phương sai, ổn định mô hình và cải thiện đáng kể độ chính xác so với mô hình M5P đơn lẻ.</li>
+                <li>Hai phương pháp tổ hợp còn lại là <strong>Voting</strong> và <strong>Stacking</strong> không mang lại sự cải thiện vượt trội, thậm chí trong một số chỉ số còn kém hơn so với mô hình M5P đơn. Điều này cho thấy việc kết hợp các mô hình một cách đơn giản hoặc với một kiến trúc phức tạp nhưng chưa được tối ưu không phải lúc nào cũng đem lại kết quả tốt hơn.</li>
+                <li>Kết quả này một lần nữa khẳng định tính hiệu quả của kỹ thuật Bagging [3] trong việc nâng cao hiệu suất của các môHình học máy, đặc biệt là khi kết hợp với những mô hình mạnh như M5P cho các bài toán hồi quy phi tuyến.</li>
+            </ul>
+        </section>
+
+        <section id="ket-luan" class="mt-12 pt-8">
+            <h2>4. Kết luận</h2>
+            <p>
+                Nghiên cứu này đã thành công trong việc ứng dụng các thuật toán học máy để dự đoán độ sụt của bê tông dựa trên thành phần cấp phối. Từ kết quả nghiên cứu, một số kết luận chính được rút ra như sau:
+            </p>
+            <ul>
+                <li>Mô hình <strong>Bagging [3]</strong> được đề xuất là mô hình tối ưu nhất cho bài toán dự đoán độ sụt bê tông trong nghiên cứu này, đạt hệ số tương quan <strong>R = 0.6488</strong>, sai số <strong>MAE = 5.1437 cm</strong> và <strong>RMSE = 6.6343 cm</strong>.</li>
+                <li>Phương pháp tổ hợp Bagging [3] đóng vai trò quan trọng trong việc cải thiện độ chính xác và độ ổn định của mô hình cơ sở M5P, giúp mô hình tổng hợp đạt hiệu suất dự đoán cao hơn hẳn so với mô hình đơn lẻ.</li>
+                <li>Trong số các mô hình đơn, M5P thể hiện khả năng vượt trội so với Linear Regression và SMOreg, phù hợp để mô hình hóa các mối quan hệ phi tuyến phức tạp trong dữ liệu bê tông.</li>
+                <li>Quá trình tiền xử lý và phân tích dữ liệu bằng Python đã cung cấp những hiểu biết sâu sắc về đặc điểm dữ liệu, bao gồm tính chất hai đỉnh của độ sụt và mối tương quan mạnh giữa độ sụt với lượng nước và phụ gia siêu dẻo.</li>
+                <li>Mô hình đề xuất Bagging có thể được sử dụng như một công cụ hỗ trợ đắc lực trong thực tiễn sản xuất và thi công bê tông, giúp dự đoán nhanh độ sụt từ thành phần cấp phối, góp phần nâng cao chất lượng và hiệu quả công việc.</li>
+                <li>Mặc dù đạt được kết quả khả quan, độ chính xác của mô hình vẫn có thể được cải thiện hơn nữa trong tương lai bằng cách thu thập thêm dữ liệu đa dạng và phong phú hơn, cũng như thử nghiệm với các thuật toán học máy tiên tiến khác và tối ưu hóa sâu các tham số.</li>
+            </ul>
+        </section>
+
+        <section id="tai-lieu" class="mt-12 pt-8">
+            <h2>Tài liệu tham khảo</h2>
+            <ul class="list-none space-y-3 text-sm text-gray-700" style="padding-left: 0; list-style-type: none;">
+                <li class="pl-4 border-l-4 border-gray-200">
+                    [1] Yeh, I-Cheng (2009). Concrete Slump Test Dataset. UCI Machine Learning Repository.
+                </li>
+                <li class="pl-4 border-l-4 border-gray-200">
+                    [2] University of Waikato. (2020). Weka – An Open-Source Machine Learning Software. Truy cập từ: https://www.cs.waikato.ac.nz/ml/weka/
+                </li>
+                <li class="pl-4 border-l-4 border-gray-200">
+                    [3] Anh-Duc Pham, Ngoc-Tri Ngo and Thi-Kha Nguyen. (2020). Machine learning for predicting long-term deflections in reinforce concrete flexural structures. Journal of Computational Design and Engineering. 7(1), 95–106
+                </li>
+                <li class="pl-4 border-l-4 border-gray-200">
+                    [4] Ngo, N.-T., Le, H. A., Huynh, V.-V., & Pham, T.-P.-T. (2021). Machine Learning Models for Inferring the Axial Strength in Short Concrete-Filled Steel Tube Columns Infilled with Various Strength Concrete. Engineering Journal.
+                </li>
+                 <li class="pl-4 border-l-4 border-gray-200">
+                    [5] Phạm Thái Hoàn (2021). Ước lượng khả năng chịu nén đúng tâm của cột ống thép nhồi bê tông bằng thuật toán máy học. Tạp chí Khoa học Công nghệ Xây dựng.
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="text-center text-gray-500 text-sm mt-12 py-6 border-t border-gray-200">
+        Đỗ Văn Thạo.K48QXD
+    </footer>
+
+    <!-- JS cho tô sáng cú pháp (Prism.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <!-- JS cho menu mobile (Phần duy nhất được giữ lại từ script gốc) -->
+    <script>
+        'use strict';
+        window.addEventListener('DOMContentLoaded', () => {
+            // --- Xử lý menu mobile ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('#mobile-menu a, main a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (link.hash !== "") {
+                        if (!mobileMenu.classList.contains('hidden')) {
+                             mobileMenu.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Kích hoạt Prism.js (nếu đã tải)
+            if (window.Prism) {
+                Prism.highlightAll();
+            }
+        });
+    </script>
+
+</body>
+</html>
+
