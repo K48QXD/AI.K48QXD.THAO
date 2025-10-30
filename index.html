@@ -280,11 +280,11 @@ df_cleaned = df.drop(columns=columns_to_drop)
             <p><strong>Biểu đồ Hộp (Box Plot)</strong></p>
             <p>Các biểu đồ hộp dưới đây (Hình 1) hiển thị phân bố của từng biến số qua các tứ phân vị và phát hiện các điểm ngoại lai. Phân tích cho thấy sự lệch phải của Slag, Fly ash, SP và sự phân tán rộng hơn của các thuộc tính khác.</p>
             
-            <!-- Giữ nguyên Hình 1 là ảnh tĩnh -->
+            <!-- Sửa Hình 1: Thay thế src bằng đường dẫn tệp cục bộ -->
             <div class="placeholder-img my-4 p-0 bg-white">
-                <img src="https://i.imgur.com/gYjYJqM.png" alt="Biểu đồ hộp của 8 thuộc tính dữ liệu" class="rounded-md object-contain w-full h-auto" onerror="this.onerror=null; this.src='https://placehold.co/800x600/f3f4f6/4b5563?text=Loi+tai+hinh+1';">
+                <img src="images/Box Plot.png" alt="Biểu đồ hộp của 8 thuộc tính dữ liệu" class="rounded-md object-contain w-full h-auto" onerror="this.onerror=null; this.src='https://placehold.co/800x600/f3f4f6/4b5563?text=Loi+tai+hinh+1';">
                 <span>Hình 1: Biểu đồ hộp các thuộc tính dữ liệu</span>
-                <p>(Nguồn: <code>Box Plot.png</code>)</p>
+                <p>(Nguồn: <code>images/Box Plot.png</code>)</p>
             </div>
             
             <p class="font-semibold text-lg">Phân tích nhanh từ Box Plot:</p>
@@ -336,11 +336,11 @@ df_cleaned = df.drop(columns=columns_to_drop)
                 <canvas id="histogramChart"></canvas>
             </div>
 
-            <!-- Thêm Biểu đồ mật độ (Density Plot) -->
+            <!-- Sửa Hình 2.1: Thay thế src bằng đường dẫn tệp cục bộ -->
             <div class="placeholder-img my-4 p-0 bg-white">
-                <img src="https://i.imgur.com/FAKE_DENSITY_PLOT.png" alt="Biểu đồ mật độ của các thuộc tính" class="rounded-md object-contain w-full h-auto" onerror="this.onerror=null; this.src='https://placehold.co/800x600/f3f4f6/4b5563?text=Loi+tai+hinh+Density+Plot';">
+                <img src="images/Density Plot.png" alt="Biểu đồ mật độ của các thuộc tính" class="rounded-md object-contain w-full h-auto" onerror="this.onerror=null; this.src='https://placehold.co/800x600/f3f4f6/4b5563?text=Loi+tai+hinh+Density+Plot';">
                 <span>Hình 2.1: Biểu đồ mật độ (Density Plot) các thuộc tính</span>
-                <p>(Nguồn: <code>Density Plot.png</code>)</p>
+                <p>(Nguồn: <code>images/Density Plot.png</code>)</p>
             </div>
             
             <p class="font-semibold text-lg mt-6">Phân tích nhanh từ Biểu đồ Tần suất:</p>
@@ -358,11 +358,11 @@ df_cleaned = df.drop(columns=columns_to_drop)
             <p class="mt-6"><strong>Ma trận Tương quan (Correlation Matrix Heatmap)</strong></p>
             <p>Ma trận tương quan Pearson được trực quan hóa dưới dạng bản đồ nhiệt (Hình 2). Phân tích chỉ ra rằng <strong>Water (0.47)</strong> và <strong>SP (-0.21)</strong> có tương quan (dương và âm) rõ rệt với SLUMP.</p>
             
-            <!-- Giữ nguyên Hình 2 là ảnh tĩnh -->
+            <!-- Sửa Hình 2: Thay thế src bằng đường dẫn tệp cục bộ -->
             <div class="placeholder-img my-4 p-0 bg-white">
-                <img src="https://i.imgur.com/8Qp41hC.png" alt="Ma trận tương quan của dữ liệu" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto" onerror="this.onerror=null; this.src='https://placehold.co/600x500/f3f4f6/4b5563?text=Loi+tai+hinh+2';">
+                <img src="images/Correlation Matrix of Cleaned Data.png" alt="Ma trận tương quan của dữ liệu" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto" onerror="this.onerror=null; this.src='https://placehold.co/600x500/f3f4f6/4b5563?text=Loi+tai+hinh+2';">
                 <span>Hình 2: Ma trận tương quan các thuộc tính</span>
-                <p>(Nguồn: <code>Correlation Matrix of Cleaned Data.png</code>)</p>
+                <p>(Nguồn: <code>images/Correlation Matrix of Cleaned Data.png</code>)</p>
             </div>
             
             <table class="my-4">
@@ -410,11 +410,11 @@ data_arff = {
                 <li><strong>Cây Hồi quy M5P:</strong> Xây dựng mô hình cây quyết định kết hợp với các mô hình hồi quy tuyến tính tại các nút lá.</li>
             </ul>
             
-            <!-- Giữ nguyên Hình 3 là ảnh tĩnh -->
+            <!-- Sửa Hình 3: Thay thế src bằng đường dẫn tệp cục bộ -->
             <div class="placeholder-img my-4 p-0 bg-white">
-                <img src="https://i.imgur.com/007n4tN.png" alt="Kiến trúc mô hình Random Forest / Bagging" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto" style="background-color: #ffffff;" onerror="this.onerror=null; this.src='https://placehold.co/800x500/3A5F3A/ffffff?text=Loi+tai+hinh+3';">
+                <img src="images/random-forest.png" alt="Kiến trúc mô hình Random Forest / Bagging" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto" style="background-color: #ffffff;" onerror="this.onerror=null; this.src='https://placehold.co/800x500/3A5F3A/ffffff?text=Loi+tai+hinh+3';">
                 <span>Hình 3: Minh họa kiến trúc mô hình Bagging (Random Forest) [3]</span>
-                <p>(Nguồn: <code>random-forest.png</code>)</p>
+                <p>(Nguồn: <code>images/random-forest.png</code>)</p>
             </div>
 
             <h4>2.3.2. Các phương pháp học máy tổ hợp</h4>
@@ -427,15 +427,16 @@ data_arff = {
             <h4>2.3.3. Phương pháp đánh giá</h4>
             <p>Phương pháp <strong>Xác nhận chéo 10 lần (10-fold cross-validation)</strong> được sử dụng để đánh giá hiệu suất mô hình một cách khách quan, đặc biệt phù hợp với bộ dữ liệu có kích thước nhỏ [4].</p>
             
-            <!-- Giữ nguyên Hình 4 là ảnh tĩnh -->
+            <!-- Sửa Hình 4.1: Thay thế src bằng đường dẫn tệp cục bộ -->
             <div class="placeholder-img my-4 p-4 bg-white">
-                <img src="https://i.imgur.com/E8SgA4U.png" alt="Sơ đồ quy trình 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto mb-4" onerror="this.onerror=null; this.src='https://placehold.co/800x500/f3f4f6/4b5563?text=Loi+tai+hinh+4.1';">
+                <img src="images/Flow-diagram-of-K-fold-cross-validation.png" alt="Sơ đồ quy trình 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-2xl mx-auto mb-4" onerror="this.onerror=null; this.src='https://placehold.co/800x500/f3f4f6/4b5563?text=Loi+tai+hinh+4.1';">
                 <span>Hình 4.1: Sơ đồ quy trình Kiểm tra chéo 10-lần (10-fold CV) [4]</span>
-                <p class="mb-4">(Nguồn: <code>Flow-diagram-of-K-fold-cross-validation.png</code>)</p>
+                <p class="mb-4">(Nguồn: <code>images/Flow-diagram-of-K-fold-cross-validation.png</code>)</p>
 
-                <img src="https://i.imgur.com/0eQjD6D.gif" alt="Minh họa động 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-lg mx-auto mt-4" onerror="this.onerror=null; this.src='https://placehold.co/500x300/f3f4f6/4b5563?text=Loi+tai+hinh+4.2';">
+                <!-- Sửa Hình 4.2: Thay thế src bằng đường dẫn tệp cục bộ -->
+                <img src="images/cv-anim-.gif" alt="Minh họa động 10-fold CV" class="rounded-md object-contain w-full h-auto max-w-lg mx-auto mt-4" onerror="this.onerror=null; this.src='https://placehold.co/500x300/f3f4f6/4b5563?text=Loi+tai+hinh+4.2';">
                 <span>Hình 4.2: Minh họa động quá trình chia tập Test/Train</span>
-                <p>(Nguồn: <code>cv-anim-.gif</code>)</p>
+                <p>(Nguồn: <code>images/cv-anim-.gif</code>)</p>
             </div>
             
             <table class="my-4">
@@ -823,5 +824,4 @@ data_arff = {
 
 </body>
 </html>
-
 
