@@ -23,13 +23,18 @@
         }
         
         /* Khôi phục CSS cho các biểu đồ Chart.js */
+        /* Đã thêm height cố định */
         .chart-container {
             max-width: 700px;
+            height: 350px; /* Hiệu chỉnh chiều cao */
             margin: 2rem auto;
             position: relative;
         }
+        /* Đã thêm max-width và height cố định */
         .histogram-container {
             width: 100%;
+            max-width: 700px; /* Thêm max-width */
+            height: 400px; /* Hiệu chỉnh chiều cao */
             margin: 2rem auto;
             position: relative;
         }
@@ -713,7 +718,7 @@ data_arff = {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        aspectRatio: 1.5,
+                        /* Đã loại bỏ aspectRatio: 1.5 */
                         scales: {
                             x: {
                                 title: { display: true, text: '' } // Sẽ được cập nhật
@@ -754,7 +759,7 @@ data_arff = {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        aspectRatio: 1.5,
+                        /* Đã loại bỏ aspectRatio: 1.5 */
                         indexAxis: 'y', // Làm cho biểu đồ ngang
                         scales: {
                             x: {
